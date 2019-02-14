@@ -1,4 +1,5 @@
 # Forked Changes:
+Forked from https://github.com/kylepixel/cas-authentication
 1) Remove the `renew` or `gateway` flag from the URL when they are set to `false`.
 2) Added the "gateway" option for the connected CAS server.
 
