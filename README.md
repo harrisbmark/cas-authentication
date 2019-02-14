@@ -1,3 +1,17 @@
+## Forked Changes:
+1) Remove the `renew` or `gateway` flag from the URL when they are set to `false`.
+2) Added the "gateway" option for the connected CAS server.
+
+    ```
+    var cas = new CASAuthentication({
+             cas_url     : 'https://my-cas-host.com/cas',
+             service_url : 'https://my-service-host.com',
+             gateway     : true
+         });
+     ```
+ 
+     When the gateway flag is set to `true`, the `bounce` function will attempt to connect to the CAS server. If a ticket is received and a user is authenticated, it will automatically redirect back to your application. Otherwise, a `401` is returned where the `bounce` function was used.
+
 # Express CAS Authentication
 
 This is a CAS authentication library designed to be used with an Express server.

@@ -154,6 +154,7 @@ function CASAuthentication(options) {
     this.service_url     = options.service_url;
 
     this.renew           = options.renew !== undefined ? !!options.renew : false;
+    this.gateway         = options.gateway !== undefined ? !!options.gateway : false;
 
     this.is_dev_mode     = options.is_dev_mode !== undefined ? !!options.is_dev_mode : false;
     this.dev_mode_user   = options.dev_mode_user !== undefined ? options.dev_mode_user : '';
@@ -233,6 +234,21 @@ CASAuthentication.prototype._handle = function(req, res, next, authType) {
         this._handleTicket(req, res, next);
     }
     // Otherwise, redirect the user to the CAS login.
+    else if (this.gateway) {
+        if (req.session['attempt'] === undefined) {
+            req.session['attempt'] = false;
+        }
+
+        if (req.session['attempt'] === true) {
+            req.session['attempt'] = false;
+            res.sendStatus(401);
+        }
+
+        else {
+            req.session['attempt'] = true;
+            this._login(req, res, next);
+        }
+    }
     else {
         this._login(req, res, next);
     }
@@ -250,8 +266,17 @@ CASAuthentication.prototype._login = function(req, res, next) {
     // Set up the query parameters.
     var query = {
         service: this.service_url + url.parse(req.url).pathname,
-        renew: this.renew
+        renew: this.renew,
+        gateway: this.gateway
     };
+
+    if (!this.renew) {
+        delete query.renew;
+    }
+
+    if (!this.gateway) {
+        delete query.gateway;
+    }
 
     // Redirect to the CAS login.
     res.redirect( this.cas_url + url.format({
@@ -277,7 +302,7 @@ CASAuthentication.prototype.logout = function(req, res, next) {
     else {
         delete req.session[ this.session_name ];
         if (this.session_info) {
-          delete req.session[ this.session_info ];
+            delete req.session[ this.session_info ];
         }
     }
 
@@ -308,18 +333,18 @@ CASAuthentication.prototype._handleTicket = function(req, res, next) {
     else if (this.cas_version === 'saml1.1'){
         var now = new Date();
         var post_data = '<?xml version="1.0" encoding="utf-8"?>\n' +
-                        '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">\n' +
-                        '  <SOAP-ENV:Header/>\n' +
-                        '  <SOAP-ENV:Body>\n' +
-                        '    <samlp:Request xmlns:samlp="urn:oasis:names:tc:SAML:1.0:protocol" MajorVersion="1"\n' +
-                        '      MinorVersion="1" RequestID="_' + req.host + '.' + now.getTime() + '"\n' +
-                        '      IssueInstant="' + now.toISOString() + '">\n' +
-                        '      <samlp:AssertionArtifact>\n' +
-                        '        ' + req.query.ticket + '\n' +
-                        '      </samlp:AssertionArtifact>\n' +
-                        '    </samlp:Request>\n' +
-                        '  </SOAP-ENV:Body>\n' +
-                        '</SOAP-ENV:Envelope>';
+            '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">\n' +
+            '  <SOAP-ENV:Header/>\n' +
+            '  <SOAP-ENV:Body>\n' +
+            '    <samlp:Request xmlns:samlp="urn:oasis:names:tc:SAML:1.0:protocol" MajorVersion="1"\n' +
+            '      MinorVersion="1" RequestID="_' + req.host + '.' + now.getTime() + '"\n' +
+            '      IssueInstant="' + now.toISOString() + '">\n' +
+            '      <samlp:AssertionArtifact>\n' +
+            '        ' + req.query.ticket + '\n' +
+            '      </samlp:AssertionArtifact>\n' +
+            '    </samlp:Request>\n' +
+            '  </SOAP-ENV:Body>\n' +
+            '</SOAP-ENV:Envelope>';
 
         requestOptions.method = 'POST';
         requestOptions.path = url.format({
