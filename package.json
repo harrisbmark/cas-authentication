@@ -1,6 +1,6 @@
 {
-  "name": "cas-authentication",
-  "version": "0.0.8",
+  "name": "@byu-law/cas-authentication",
+  "version": "0.1.0",
   "description": "A CAS authentication library designed to be used as middleware for an Express server.",
   "keywords": [
     "cas",
@@ -12,22 +12,22 @@
     "middleware",
     "express"
   ],
-  "homepage": "https://github.com/kylepixel/cas-authentication",
+  "homepage": "https://github.com/harrisbmark/cas-authentication",
   "bugs": {
-    "url": "https://github.com/kylepixel/cas-authentication/issues"
+    "url": "https://github.com/harrisbmark/cas-authentication/issues"
   },
   "license": "MIT",
-  "author": "Kyle Maguire <kylepixel@gmail.com>",
+  "author": "Mark Harris <harrism@law.byu.edu>",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kylepixel/cas-authentication.git"
+    "url": "git+https://github.com/harrisbmark/cas-authentication.git"
   },
   "dependencies": {
     "xml2js": "^0.4.22"
   },
   "devDependencies": {
     "express": "^4.17.1",
-    "express-session": "^1.16.2"
+    "express-session": "^1.17.0"
   }
 }
